@@ -1,0 +1,7 @@
+package com.example.mary.CinemaREST.exception;
+
+public class MovieNotFoundException extends RuntimeException{
+    public MovieNotFoundException(String message) {
+        super(message);
+    }
+}

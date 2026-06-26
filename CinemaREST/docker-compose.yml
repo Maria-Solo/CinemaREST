@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # Наша база данных PostgreSQL
+  postgres-db:
+    image: postgres:latest
+    container_name: cinema_rest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: project2_pass
+      POSTGRES_DB: cinema_rest_db
+    ports:
+      - "5434:5432"  # Внешний порт поменяли на 5434, чтобы точно не конфликтовать
+    volumes:
+      - cinema_v18_data:/var/lib/postgresql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d cinema_rest_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Наше Java-приложение
+  java-app:
+    image: cinema-java-app:latest
+    container_name: cinema-java-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres-db:
+        condition: service_healthy  # Ждем полной готовности базы перед стартом Java
+    environment:
+      # Подключаемся по внутреннему имени сервиса и стандартному порту 5432!
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/cinema_rest_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: project2_pass
+
+volumes:
+  cinema_v18_data:
