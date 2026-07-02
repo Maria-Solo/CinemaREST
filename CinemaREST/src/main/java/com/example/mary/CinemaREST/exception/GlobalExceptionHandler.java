@@ -14,18 +14,36 @@ import java.util.Map;
 
         // 1. Перехватываем ошибки валидации (когда прислали некорректный JSON)
         @ExceptionHandler(MethodArgumentNotValidException.class)
-        public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-            Map<String, String> errors = new HashMap<>();
+        public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+            Map<String, Object> response = new HashMap<>();
+
+            response.put("message", "Validation failed");
 
             // Собираем все ошибки: имя поля -> текст ошибки
+
+            Map<String, String> errors = new HashMap<>();
             ex.getBindingResult().getAllErrors().forEach((error) -> {
                 String fieldName = ((FieldError) error).getField();
                 String errorMessage = error.getDefaultMessage();
                 errors.put(fieldName, errorMessage);
             });
 
+            // Кладим карту с деталями внутрь основного ответа под ключом "details"
+            response.put("details", errors);
+
             // Возвращаем статус 400 Bad Request и карту с ошибками
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+        @ExceptionHandler(MovieNotFoundException.class)
+        public ResponseEntity<Map<String, String>> handleMovieNotFoundException(MovieNotFoundException ex) {
+            Map<String, String> response = new HashMap<>();
+
+            // Кладим текст "Фильм с таким id не существует" (из вашего MovieService) под ключ "message"
+            response.put("message", ex.getMessage());
+
+            // Клиент получит JSON: {"message": "Фильм с таким id не существует"} со статусом 404
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
         // 2. Пример перехвата любой другой непредвиденной ошибки сервера
@@ -38,12 +56,11 @@ import java.util.Map;
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        @ExceptionHandler(MovieNotFoundException.class)
-        public ResponseEntity<Map<String, String>> handleMovieNotFoundException(MovieNotFoundException ex){
-
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", ex.getMessage());
-
-            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        @ExceptionHandler(SessionNotFoundException.class)
+        public ResponseEntity<Map<String, String>> handleSessionNotFoundException(SessionNotFoundException ex) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", ex.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
+
     }

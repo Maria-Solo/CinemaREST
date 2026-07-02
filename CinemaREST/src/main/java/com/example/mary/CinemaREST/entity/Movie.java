@@ -4,6 +4,11 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -14,12 +19,22 @@ public class Movie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
-    @NotBlank(message = "Название фильма не может быть пустым")
+    @OneToMany(mappedBy = "session", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<Session> sessions = new ArrayList<>();
+
+    public void addSession(Session session) {
+        sessions.add(session);
+        session.setMovie(this);
+    }
+
+    public void removeSession(Session session) {
+        sessions.remove(session);
+        session.setMovie(null);
+    }
+
     public String title;
-
-    @NotBlank(message = "Жанр не может быть пустым")
     public String genre;
-
-    @Min(value = 1, message = "Длительность фильма должна быть больше 0 минут")
     public int durationMinutes;
 }

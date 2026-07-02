@@ -5,7 +5,9 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5434/cinema_rest_db}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:project2_pass}
+  sql:
+    init:
+      defer-datasource-initialization: true
   jpa:
     hibernate:
       ddl-auto: update
-

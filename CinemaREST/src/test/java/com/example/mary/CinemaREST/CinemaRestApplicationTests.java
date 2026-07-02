@@ -1,5 +1,6 @@
 package com.example.mary.CinemaREST;
 
+import com.example.mary.CinemaREST.dto.MovieRequestDTO;
 import com.example.mary.CinemaREST.entity.Movie;
 import com.example.mary.CinemaREST.repository.MovieRepository;
 import org.springframework.http.MediaType;
@@ -66,11 +67,11 @@ class CinemaRestApplicationTests {
     @Test
     void testGetMovieById() throws Exception {
         // Создаем и сохраняем один фильм
-        Movie movie = new Movie();
-        movie.setTitle("Начало");
-        movie.setGenre("Триллер");
-        movie.setDurationMinutes(148);
-        Movie savedMovie = movieRepository.save(movie); // Получаем объект с реальным ID из базы
+        Movie testMovie = new Movie();
+        testMovie.setTitle("Начало");
+        testMovie.setGenre("Триллер");
+        testMovie.setDurationMinutes(148);
+        Movie savedMovie = movieRepository.save(testMovie); // Получаем объект с реальным ID из базы
 
         // Проверяем GET /api/movies/{id}
         mockMvc.perform(get("/api/movies/" + savedMovie.getId()))
@@ -83,11 +84,11 @@ class CinemaRestApplicationTests {
     @Test
     void testDeleteMovie() throws Exception {
         // Создаем фильм, который будем удалять
-        Movie movie = new Movie();
-        movie.setTitle("Фильм для удаления");
-        movie.setGenre("Драма");
-        movie.setDurationMinutes(120);
-        Movie savedMovie = movieRepository.save(movie);
+        Movie testMovie = new Movie();
+        testMovie.setTitle("Фильм для удаления");
+        testMovie.setGenre("Драма");
+        testMovie.setDurationMinutes(120);
+        Movie savedMovie = movieRepository.save(testMovie);
 
         // Проверяем, что фильм изначально есть в базе
         long id = savedMovie.getId();

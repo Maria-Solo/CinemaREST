@@ -13,6 +13,8 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
+/// Рад, что все тесты успешно прошли и теперь сияют зелёным цветом!
+
 // Поднимаем настоящий веб-сервер на случайном порту
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class MovieRestAssuredTest {
@@ -88,10 +90,27 @@ public class MovieRestAssuredTest {
                 .post("/api/movies")
                 .then()
                 .statusCode(400)
-                .body("title", equalTo("Название фильма не может быть пустым"))
-                .body("genre", equalTo("Жанр не может быть пустым"))
-                .body("durationMinutes", equalTo("Длительность фильма должна быть больше 0 минут"));
+                .body("message", equalTo("Validation failed"))
+                .body("details.title", equalTo("Название фильма не может быть пустым"))
+                .body("details.genre", equalTo("Жанр не может быть пустым"))
+                .body("details.durationMinutes", equalTo("Длительность фильма должна быть больше 0 минут"));
+                //.body("title", equalTo("Название фильма не может быть пустым"))
     }
+    /*
+    Когда валидация падает, ваш GlobalExceptionHandler формирует JSON следующего вида:
+
+    json{
+  "message": "Validation failed",
+  "details": {
+    "title": "Название фильма не может быть пустым",
+    "genre": "Жанр не может быть пустым",
+    "durationMinutes": "Длительность фильма должна быть больше 0 минут"
+  }
+}
+REST Assured парсит этот JSON и с помощью синтаксиса details.genre
+заходит внутрь объекта details и берет значение нужного ключа для сравнения.
+
+     */
 
     @Test
     public void testGetMovieByInvalidId() {
@@ -102,7 +121,8 @@ public class MovieRestAssuredTest {
                 .get("/api/movies/999")
                 .then()
                 .statusCode(404)
-                .body("error", equalTo("Фильм с таким id не существует"));
+                .body("message", equalTo("Фильм с таким id не существует"));
+                //.body("error", equalTo("Фильм с таким id не существует"));
     }
 }
 /*
