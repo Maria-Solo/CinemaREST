@@ -68,5 +68,9 @@ public class SessionController {
         sessionService.deleteSession(id);
     }
 
+    @GetMapping("/{id}/free-seats")
+    public int getFreeSeats(@PathVariable("id") Long id) {
+       return sessionService.getFreeSeats(id);
+    }
 
 }
