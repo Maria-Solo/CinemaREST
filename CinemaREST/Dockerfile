@@ -1,12 +1,24 @@
-# Шаг 1: Берем базовый образ с Java (например, Eclipse Temurin OpenJDK 21)
-FROM eclipse-temurin:21-jre-alpine
+# Stage 1: Build
+FROM eclipse-temurin:21-jdk-alpine AS build
+WORKDIR /workspace
 
-# Шаг 2: Указываем рабочую папку внутри контейнера
+COPY mvnw pom.xml ./
+COPY .mvn .mvn
+RUN ./mvnw dependency:go-offline -B
+
+COPY src src
+RUN ./mvnw package -DskipTests -B
+
+# Stage 2: Runtime
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Шаг 3: Копируем ваш собранный .jar файл в контейнер
-# (Замените target/*.jar на ваш путь, например build/libs/*.jar для Gradle)
-COPY CinemaREST-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /workspace/target/*.jar app.jar
 
-# Шаг 4: Команда для запуска приложения
+ENV SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/cinema_rest_db
+ENV SPRING_DATASOURCE_USERNAME=postgres
+ENV SPRING_DATASOURCE_PASSWORD=project2_pass
+
+EXPOSE 8080
+
 ENTRYPOINT ["java", "-jar", "app.jar"]
